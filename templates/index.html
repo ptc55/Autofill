@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>自動化家長談話內容填寫</title>
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Microsoft JhengHei", Roboto, sans-serif; line-height: 1.6; margin: 0; padding: 20px; background-color: #f8f9fa; }
+        .container { max-width: 900px; margin: auto; background: #fff; padding: 25px 40px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
+        h1 { color: #333; text-align: center; margin-bottom: 25px; }
+        h2 { color: #0056b3; border-bottom: 2px solid #e9ecef; padding-bottom: 10px; margin-top: 35px; }
+        .header-inputs, .student-info { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; margin-bottom: 25px; padding: 20px; background-color: #f8f9fa; border-radius: 5px; }
+        .header-inputs label { font-weight: bold; color: #495057; display: block; margin-bottom: 5px; }
+        .header-inputs input, .header-inputs select { width: 100%; padding: 8px; border: 1px solid #ced4da; border-radius: 4px; box-sizing: border-box; font-size: 16px; }
+        .category { margin-bottom: 20px; }
+        .description label { display: block; margin-bottom: 8px; cursor: pointer; padding: 5px; border-radius: 4px; transition: background-color 0.2s; }
+        .description label:hover { background-color: #e9ecef; }
+        input[type="checkbox"] { margin-right: 12px; transform: scale(1.1); }
+        .actions, .batch-actions { margin-top: 30px; padding-top: 20px; border-top: 1px solid #dee2e6; display: flex; flex-wrap: wrap; gap: 15px; justify-content: center; }
+        .btn { padding: 12px 25px; font-size: 16px; font-weight: bold; color: #fff; border: none; border-radius: 5px; cursor: pointer; transition: background-color 0.3s, transform 0.1s; text-decoration: none; text-align: center; }
+        .btn:hover { transform: translateY(-2px); }
+        .btn-primary { background-color: #007bff; } .btn-primary:hover { background-color: #0069d9; }
+        .btn-success { background-color: #28a745; } .btn-success:hover { background-color: #218838; }
+        .btn-info { background-color: #17a2b8; } .btn-info:hover { background-color: #138496; }
+        .btn-danger { background-color: #dc3545; } .btn-danger:hover { background-color: #c82333; }
+        .flash-messages { list-style: none; padding: 0; margin-bottom: 20px; }
+        .flash { padding: 15px; margin-bottom: 15px; border-radius: 5px; color: #fff; text-align: center; }
+        .flash.success { background-color: #28a745; }
+        .flash.info { background-color: #17a2b8; }
+        .flash.warning { background-color: #ffc107; color: #333; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>家長談話內容</h1>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <ul class="flash-messages">
+                {% for category, message in messages %}
+                    <li class="flash {{ category }}">{{ message }}</li>
+                {% endfor %}
+                </ul>
+            {% endif %}
+        {% endwith %}
+
+        {% if record_count > 0 %}
+            <div class="batch-actions">
+                <a href="{{ url_for('generate_batch') }}" class="btn btn-success"
+                   onclick="return confirm('是否確定要輸出全部 {{ record_count }} 筆已儲存的資料？此操作將會清空暫存。')">
+                   輸出全部 {{ record_count }} 筆已儲存資料
+                </a>
+                <a href="{{ url_for('clear_session') }}" class="btn btn-danger"
+                   onclick="return confirm('警告：此操作將會刪除所有 {{ record_count }} 筆暫存資料，確定要清空嗎？')">
+                   清空 {{ record_count }} 筆暫存資料
+                </a>
+            </div>
+        {% endif %}
+
+        <form id="main-form" method="post">
+            <div class="student-info">
+                <h2>學生資料</h2>
+                <div class="header-inputs">
+                    <div>
+                        <label for="student_name">園生姓名</label>
+                        <input type="text" id="student_name" name="student_name" required>
+                    </div>
+                    <div>
+                        <label for="class_name">班&nbsp;&nbsp;&nbsp;&nbsp;別</label>
+                        <select id="class_name" name="class_name" required>
+                            {% for class_option in class_list %}
+                            <option value="{{ class_option }}">{{ class_option }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div>
+                        <label for="teacher_name">老師姓名</label>
+                        <input type="text" id="teacher_name" name="teacher_name" list="teacher-suggestions" value="{{ last_teacher_name }}" required>
+                        <datalist id="teacher-suggestions">
+                            {% if last_teacher_name %}
+                            <option value="{{ last_teacher_name }}">
+                            {% endif %}
+                        </datalist>
+                    </div>
+                </div>
+            </div>
+
+            {% for category_id, category_data in db.items() %}
+                <div class="category">
+                    <h2>{{ category_data.title }}</h2>
+                    <div class="description">
+                        {% for description in category_data.descriptions %}
+                        <label>
+                            <input type="checkbox" name="{{ category_id }}" value="{{ loop.index0 }}">
+                            {{ description.text }}
+                        </label>
+                        {% endfor %}
+                    </div>
+                </div>
+            {% endfor %}
+
+            <div class="actions">
+                <button type="submit" class="btn btn-primary" formaction="{{ url_for('generate_single') }}">僅輸出目前表格</button>
+                <button type="submit" class="btn btn-info" formaction="{{ url_for('save_data') }}">儲存並填寫下一位</button>
+            </div>
+        </form>
+    </div>
+</body>
+</html>
