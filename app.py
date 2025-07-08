@@ -1,4 +1,5 @@
 import io
+import os
 import random
 import copy
 from flask import Flask, render_template, request, send_file, session, flash, redirect, url_for
@@ -6,6 +7,9 @@ from docx import Document
 from docx.shared import Pt
 from docx.enum.text import WD_ALIGN_PARAGRAPH
 
+if __name__ == "__main__":
+    port = int(os.environ.get("PORT", 10000))
+    app.run(host="0.0.0.0", port=port)
 
 # --- 初始化 Flask 應用程式 ---
 app = Flask(__name__)
