@@ -1,10 +1,15 @@
+# render.yaml (修正後)
+
 services:
   - type: web
     name: flask-student-form
     env: python
-    buildCommand: pip install -r requirements.txt
-    startCommand: python app.py
+    buildCommand: "pip install -r requirements.txt"
+    startCommand: "gunicorn app:app" # 使用 Gunicorn 啟動
     plan: free
     envVars:
       - key: FLASK_ENV
         value: production
+      # 為了安全，建議您也把 SECRET_KEY 加到這裡
+      - key: SECRET_KEY
+        generateValue: true # Render 會自動為您產生一個安全的隨機值
