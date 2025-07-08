@@ -1,2 +1,2 @@
-flask
-python-docx
+Flask>=2.0.0
+python-docx>=0.8.11
