@@ -9,7 +9,7 @@ from docx.enum.text import WD_ALIGN_PARAGRAPH
 
 # --- 初始化 Flask 應用程式 ---
 app = Flask(__name__)
-app.secret_key = 'srv-d1mfntili9vc739h50o0?key=mS5wSO6olXA'
+app.secret_key = 'https://api.render.com/deploy/srv-d1mfntili9vc739h50o0?key=mS5wSO6olXA'
 
 # --- 全局設定：班級列表 ---
 CLASS_LIST = [
