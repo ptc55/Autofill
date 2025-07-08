@@ -7,10 +7,6 @@ from docx import Document
 from docx.shared import Pt
 from docx.enum.text import WD_ALIGN_PARAGRAPH
 
-if __name__ == "__main__":
-    port = int(os.environ.get("PORT", 10000))
-    app.run(host="0.0.0.0", port=port)
-
 # --- 初始化 Flask 應用程式 ---
 app = Flask(__name__)
 app.secret_key = 'your-very-secret-and-random-key-final-version'
@@ -529,5 +525,6 @@ def clear_session():
     return redirect(url_for('index'))
 
 
-if __name__ == '__main__':
-    app.run(debug=True)
+if __name__ == "__main__":
+    port = int(os.environ.get("PORT", 10000))
+    app.run(host="0.0.0.0", port=port)
